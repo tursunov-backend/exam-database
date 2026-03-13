@@ -30,13 +30,14 @@ class TimestampMixin:
         TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False
     )
 
+
 class Author(Base, TimestampMixin):
     __tablename__ = "authors"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     bio: Mapped[str] = mapped_column(Text, nullable=True)
-    
+
     books: Mapped[list["Book"]] = relationship("Book", back_populates="authors")
 
 
