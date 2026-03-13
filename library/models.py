@@ -23,10 +23,10 @@ class Base(DeclarativeBase):
 
 
 class TimestampMixin:
-    create_at: Mapped[datetime] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP, server_default=func.now(), nullable=False
     )
-    update_ad: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[datetime] = mapped_column(
         TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False
     )
 
@@ -36,9 +36,9 @@ class Author(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    bio: Mapped[str] = mapped_column(Text, nullable=True)
+    bio: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    books: Mapped[list["Book"]] = relationship("Book", back_populates="authors")
+    books: Mapped[list["Book"]] = relationship("Book", back_populates="author")
 
 
 class Book(Base, TimestampMixin):
@@ -48,11 +48,11 @@ class Book(Base, TimestampMixin):
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     author_id: Mapped[int] = mapped_column(ForeignKey("authors.id"))
     published_year: Mapped[int] = mapped_column(Integer)
-    isbn: Mapped[str] = mapped_column(String(13), unique=True, nullable=True)
+    isbn: Mapped[str | None] = mapped_column(String(13), unique=True, nullable=True)
     is_available: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    authors: Mapped["Author"] = relationship("Author", back_populates="books")
-    borrows: Mapped[list["Borrow"]] = relationship("Borrow", back_populates="books")
+    author: Mapped["Author"] = relationship("Author", back_populates="books")
+    borrows: Mapped[list["Borrow"]] = relationship("Borrow", back_populates="book")
 
 
 class Student(Base, TimestampMixin):
@@ -64,7 +64,7 @@ class Student(Base, TimestampMixin):
     grade: Mapped[str | None] = mapped_column(String(20), nullable=True)
     registered_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
-    borrows: Mapped[list["Borrow"]] = relationship("Borrow", back_populates="students")
+    borrows: Mapped[list["Borrow"]] = relationship("Borrow", back_populates="student")
 
 
 class Borrow(Base, TimestampMixin):
@@ -79,7 +79,7 @@ class Borrow(Base, TimestampMixin):
         DateTime, default=lambda: datetime.now() + timedelta(days=14)
     )
 
-    returned_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    returned_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
-    students: Mapped["Student"] = relationship("Student", back_populates="borrows")
-    books: Mapped["Book"] = relationship("Book", back_populates="borrows")
+    student: Mapped["Student"] = relationship("Student", back_populates="borrows")
+    book: Mapped["Book"] = relationship("Book", back_populates="borrows")
