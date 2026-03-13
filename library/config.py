@@ -1,17 +1,17 @@
-from sqlalchemy import create_engine, URL
-from sqlalchemy.orm import sessionmaker
+import os
 
-from .db import settings
+from dotenv import load_dotenv
 
-engine = create_engine(
-    url=URL.create(
-        drivername="postgresql+psycopg2",
-        host=settings.DB_HOST,
-        port=settings.DB_PORT,
-        username=settings.DB_USER,
-        password=settings.DB_PASSWORD,
-        database=settings.DB_NAME,
-    )
-)
 
-SessionLocal = sessionmaker(bind=engine)
+load_dotenv()
+
+
+class Settings:
+    DB_HOST = os.getenv("DB_HOST")
+    DB_PORT = int(os.getenv("DB_PORT", 5432))
+    DB_NAME = os.getenv("DB_NAME")
+    DB_USER = os.getenv("DB_USER")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
+
+
+settings = Settings()

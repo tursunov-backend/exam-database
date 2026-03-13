@@ -7,6 +7,8 @@ from sqlalchemy.orm import (
     DeclarativeBase,
 )
 from sqlalchemy import (
+    TIMESTAMP,
+    func,
     Integer,
     String,
     ForeignKey,
@@ -20,18 +22,25 @@ class Base(DeclarativeBase):
     pass
 
 
-class Author(Base):
+class TimestampMixin:
+    create_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP, server_default=func.now(), nullable=False
+    )
+    update_ad: Mapped[datetime] = mapped_column(
+        TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+class Author(Base, TimestampMixin):
     __tablename__ = "authors"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     bio: Mapped[str] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
-
+    
     books: Mapped[list["Book"]] = relationship("Book", back_populates="authors")
 
 
-class Book(Base):
+class Book(Base, TimestampMixin):
     __tablename__ = "books"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -40,14 +49,12 @@ class Book(Base):
     published_year: Mapped[int] = mapped_column(Integer)
     isbn: Mapped[str] = mapped_column(String(13), unique=True, nullable=True)
     is_available: Mapped[bool] = mapped_column(Boolean, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
     authors: Mapped["Author"] = relationship("Author", back_populates="books")
     borrows: Mapped[list["Borrow"]] = relationship("Borrow", back_populates="books")
 
 
-class Student(Base):
+class Student(Base, TimestampMixin):
     __tablename__ = "students"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -59,7 +66,7 @@ class Student(Base):
     borrows: Mapped[list["Borrow"]] = relationship("Borrow", back_populates="students")
 
 
-class Borrow(Base):
+class Borrow(Base, TimestampMixin):
     __tablename__ = "borrows"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
